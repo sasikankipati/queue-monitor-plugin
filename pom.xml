@@ -13,7 +13,7 @@
 
   <groupId>io.jenkins.plugins</groupId>
   <artifactId>queue-monitor</artifactId>
-  <version>3.1.0</version>
+  <version>3.1.1</version>
   <packaging>hpi</packaging>
 
   <name>Queue Depth Monitor</name>
@@ -46,6 +46,25 @@
         <version>5054.v620b_5d2b_d5e6</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+
+      <!-- Security overrides: the BOM above still pins vulnerable versions of these
+           transitive Mailer dependencies. Pin the patched releases explicitly until
+           the BOM catches up. Direct dependencyManagement entries take precedence
+           over the same coordinates brought in via <scope>import</scope>. -->
+      <dependency>
+        <!-- CVE-2025-7962: SMTP header/content injection via unescaped CRLF,
+             fixed upstream in Angus Mail 2.0.4 (bundled starting here). -->
+        <groupId>io.jenkins.plugins</groupId>
+        <artifactId>jakarta-mail-api</artifactId>
+        <version>2.1.3-3</version>
+      </dependency>
+      <dependency>
+        <!-- CVE-2026-0636: LDAP injection in BC-JAVA, fixed in bcprov-jdk18on 1.84
+             (bundled starting here). -->
+        <groupId>org.jenkins-ci.plugins</groupId>
+        <artifactId>bouncycastle-api</artifactId>
+        <version>2.30.1.84-291.v9f17b_21896e2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -9,12 +9,16 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import java.util.logging.Logger;
+
 /**
  * Plugin-wide settings surfaced on Manage Jenkins → System.
  * All fields have safe defaults so the plugin works out-of-the-box.
  */
 @Extension
 public class GlobalConfig extends GlobalConfiguration {
+
+    private static final Logger LOGGER = Logger.getLogger(GlobalConfig.class.getName());
 
     // -----------------------------------------------------------------------
     // Polling / retention
@@ -277,8 +281,16 @@ public class GlobalConfig extends GlobalConfiguration {
         this.trendNotificationRecipients = v != null ? v.trim() : "";
     }
 
+    /** Strict email format also enforced here, not just in {@link #doCheckTrendNotificationRecipients} —
+     *  form-field doCheckXxx methods are UI hints only and are never invoked by req.bindJSON(), so a
+     *  direct POST to the config endpoint can otherwise persist a value doCheck would have rejected. */
+    private static final java.util.regex.Pattern VALID_EMAIL =
+        java.util.regex.Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+
     /**
-     * Parses {@link #trendNotificationRecipients} into trimmed, non-empty email addresses.
+     * Parses {@link #trendNotificationRecipients} into email addresses that pass strict format
+     * validation, silently dropping anything malformed (including embedded CR/LF, which some mail
+     * transports fail to reject and which could otherwise be used for header/content injection).
      * Recomputed on every call so edits via the config UI take effect without a restart.
      */
     public java.util.List<String> getTrendNotificationRecipientList() {
@@ -288,7 +300,12 @@ public class GlobalConfig extends GlobalConfiguration {
         java.util.List<String> result = new java.util.ArrayList<>();
         for (String addr : trendNotificationRecipients.split(",")) {
             String trimmed = addr.trim();
-            if (!trimmed.isEmpty()) result.add(trimmed);
+            if (trimmed.isEmpty()) continue;
+            if (VALID_EMAIL.matcher(trimmed).matches()) {
+                result.add(trimmed);
+            } else {
+                LOGGER.warning("[QueueMonitor] Dropping invalid trend-notification recipient (failed format check)");
+            }
         }
         return result;
     }
@@ -316,7 +333,7 @@ public class GlobalConfig extends GlobalConfiguration {
         for (String addr : value.split(",")) {
             String trimmed = addr.trim();
             if (trimmed.isEmpty()) continue;
-            if (!trimmed.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            if (!VALID_EMAIL.matcher(trimmed).matches()) {
                 return FormValidation.error("Invalid email address: " + trimmed);
             }
         }
