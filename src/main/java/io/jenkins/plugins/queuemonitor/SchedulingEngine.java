@@ -143,10 +143,8 @@ public class SchedulingEngine {
         java.util.Set<String> excluded = cfg.getScalingExcludedAgentSet();
 
         for (AgentResourceInfo info : agents) {
-            // Never scale the built-in controller
-            if ("built-in".equals(info.nodeName)) continue;
-
-            // Skip agents on the configured exclusion list
+            // Skip agents on the configured exclusion list (add "built-in" here to
+            // protect the controller — it is no longer excluded unconditionally).
             if (excluded.contains(info.nodeName)) {
                 LOG.fine(String.format(
                     "[QueueMonitor] Scale-down skip '%s': excluded via configuration", info.nodeName));
@@ -266,10 +264,8 @@ public class SchedulingEngine {
         java.util.Set<String> excluded = cfg.getScalingExcludedAgentSet();
 
         for (AgentResourceInfo info : candidates) {
-            // Never scale the built-in controller
-            if ("built-in".equals(info.nodeName)) continue;
-
-            // Skip agents on the configured exclusion list
+            // Skip agents on the configured exclusion list (add "built-in" here to
+            // protect the controller — it is no longer excluded unconditionally).
             if (excluded.contains(info.nodeName)) {
                 LOG.info(String.format(
                     "[QueueMonitor] Scaling skip '%s': excluded via configuration", info.nodeName));
