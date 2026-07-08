@@ -16,8 +16,8 @@ Plugin-ScmConnection: scm:git:https://github.com/jenkinsci/plugin-pom.gi
  t/queue-monitor
 Plugin-ScmTag: plugin-4.88
 Plugin-ScmUrl: https://github.com/jenkinsci/plugin-pom/queue-monitor
-Plugin-GitHash: 5fd30166369666a75d3a0e42d76cc1152be94160
-Implementation-Build: 5fd30166369666a75d3a0e42d76cc1152be94160
+Plugin-GitHash: 8978a8bb36970d6f8f31417a1e5e3fdc9ab396cd
+Implementation-Build: 8978a8bb36970d6f8f31417a1e5e3fdc9ab396cd
 Libraries: C:\Coding\JenkinsPlugin\agenticplugin\src\main\resources,C:\C
  oding\JenkinsPlugin\agenticplugin\target\classes
 Resource-Path: C:\Coding\JenkinsPlugin\agenticplugin\src\main\webapp
