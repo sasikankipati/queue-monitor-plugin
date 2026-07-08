@@ -2,12 +2,16 @@ io\jenkins\plugins\queuemonitor\GlobalConfig\doCheckMaxExecutorsPerAgent.stapler
 io\jenkins\plugins\queuemonitor\BuildPickupListener$AgentStart.class
 io\jenkins\plugins\queuemonitor\AgentUsageTracker.class
 io\jenkins\plugins\queuemonitor\GlobalConfig.class
+io\jenkins\plugins\queuemonitor\QueueTrendMonitor.class
 META-INF\annotations\hudson.Extension.txt
+io\jenkins\plugins\queuemonitor\GlobalConfig\doCheckTrendNotificationRecipients.stapler
 io\jenkins\plugins\queuemonitor\GlobalConfig\doCheckScalingMinFreeCpuPercent.stapler
 io\jenkins\plugins\queuemonitor\GlobalConfig\doCheckNotificationEndpointUrl.stapler
 io\jenkins\plugins\queuemonitor\MetricsStore.class
+io\jenkins\plugins\queuemonitor\QueueTrendNotifier.class
 io\jenkins\plugins\queuemonitor\ScalingEvent.class
 io\jenkins\plugins\queuemonitor\AgentResourceInfo.class
+io\jenkins\plugins\queuemonitor\GlobalConfig\doCheckTrendSustainedSamples.stapler
 io\jenkins\plugins\queuemonitor\GlobalConfig\doCheckMinExecutorsPerAgent.stapler
 io\jenkins\plugins\queuemonitor\SlaveUsageDetail.class
 io\jenkins\plugins\queuemonitor\BuildNotifier.class

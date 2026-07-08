@@ -189,8 +189,10 @@ public class SchedulingEngine {
             try {
                 if (node instanceof Slave) {
                     ((Slave) node).setNumExecutors(proposed);
+                    node.save();
                 } else {
                     ((Jenkins) node).setNumExecutors(proposed);
+                    node.save();
                 }
                 lastScaledAt.put(info.nodeName, Instant.now().getEpochSecond());
 
@@ -311,8 +313,10 @@ public class SchedulingEngine {
             try {
                 if (node instanceof Slave) {
                     ((Slave) node).setNumExecutors(proposed);
+                    node.save();
                 } else {
                     ((Jenkins) node).setNumExecutors(proposed);
+                    node.save();
                 }
                 lastScaledAt.put(info.nodeName, Instant.now().getEpochSecond());
 
