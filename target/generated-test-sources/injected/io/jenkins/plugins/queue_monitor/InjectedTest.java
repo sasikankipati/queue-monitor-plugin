@@ -7,13 +7,13 @@ import java.util.*;
  */
 public class InjectedTest extends junit.framework.TestCase {
   public static junit.framework.Test suite() throws Exception {
-    System.out.println("Running tests for "+"io.jenkins.plugins:queue-monitor:3.2.0");
+    System.out.println("Running tests for "+"io.jenkins.plugins:queue-monitor:4.0.0");
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("basedir","C:\\Coding\\JenkinsPlugin\\agenticplugin");
+    parameters.put("basedir","C:\\Coding\\temp\\queue-monitor-plugin");
     parameters.put("artifactId","queue-monitor");
     parameters.put("packaging","hpi");
-    parameters.put("outputDirectory","C:\\Coding\\JenkinsPlugin\\agenticplugin\\target\\classes");
-    parameters.put("testOutputDirectory","C:\\Coding\\JenkinsPlugin\\agenticplugin\\target\\test-classes");
+    parameters.put("outputDirectory","C:\\Coding\\temp\\queue-monitor-plugin\\target\\classes");
+    parameters.put("testOutputDirectory","C:\\Coding\\temp\\queue-monitor-plugin\\target\\test-classes");
     parameters.put("requirePI","true");
     return org.jvnet.hudson.test.PluginAutomaticTestBuilder.build(parameters);
   }
