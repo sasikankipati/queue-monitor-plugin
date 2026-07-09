@@ -3,10 +3,8 @@ package io.jenkins.plugins.queuemonitor;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Computer;
-import hudson.model.Executor;
 import hudson.model.Label;
 import hudson.model.Node;
-import hudson.model.Slave;
 import jenkins.model.Jenkins;
 
 import java.lang.management.ManagementFactory;
@@ -170,30 +168,16 @@ public class SchedulingEngine {
                 continue;
             }
 
-            boolean isBuiltIn = "built-in".equals(info.nodeName);
-            Node node = isBuiltIn ? jenkins : jenkins.getNode(info.nodeName);
-            if (node == null) continue;
+            Computer computer = resolveComputer(info.nodeName, jenkins);
+            if (computer == null) continue;
 
-            int current;
-            if (node instanceof Slave) {
-                current = ((Slave) node).getNumExecutors();
-            } else if (node instanceof Jenkins) {
-                current = ((Jenkins) node).getNumExecutors();
-            } else {
-                continue;
-            }
+            int current = computer.getNumExecutors();
 
             int proposed = Math.max(current - 1, floor);
             if (proposed >= current) continue;
 
             try {
-                if (node instanceof Slave) {
-                    ((Slave) node).setNumExecutors(proposed);
-                    node.save();
-                } else {
-                    ((Jenkins) node).setNumExecutors(proposed);
-                    node.save();
-                }
+                setComputerExecutors(computer, proposed);
                 lastScaledAt.put(info.nodeName, Instant.now().getEpochSecond());
 
                 ScalingEvent event = new ScalingEvent(
@@ -289,35 +273,16 @@ public class SchedulingEngine {
                 continue;
             }
 
-            // Resolve the node — "built-in" is the display name we assigned; the real
-            // built-in controller has an empty node name, so getNode("") returns null.
-            // In that case, the Jenkins instance itself IS the node.
-            boolean isBuiltIn = "built-in".equals(info.nodeName);
-            Node node = isBuiltIn ? jenkins : jenkins.getNode(info.nodeName);
-            if (node == null) continue;
+            Computer computer = resolveComputer(info.nodeName, jenkins);
+            if (computer == null) continue;
 
-            // Both Slave (remote agents) and Jenkins (built-in controller) support
-            // setNumExecutors, but they are separate classes — handle each explicitly.
-            int current;
-            if (node instanceof Slave) {
-                current = ((Slave) node).getNumExecutors();
-            } else if (node instanceof Jenkins) {
-                current = ((Jenkins) node).getNumExecutors();
-            } else {
-                continue; // unsupported node type
-            }
+            int current = computer.getNumExecutors();
 
             int proposed = Math.min(current + 1, cfg.getMaxExecutorsPerAgent());
             if (proposed <= current) continue;
 
             try {
-                if (node instanceof Slave) {
-                    ((Slave) node).setNumExecutors(proposed);
-                    node.save();
-                } else {
-                    ((Jenkins) node).setNumExecutors(proposed);
-                    node.save();
-                }
+                setComputerExecutors(computer, proposed);
                 lastScaledAt.put(info.nodeName, Instant.now().getEpochSecond());
 
                 ScalingEvent event = new ScalingEvent(
@@ -360,9 +325,8 @@ public class SchedulingEngine {
             Node node = computer.getNode();
             if (node == null) continue;
 
-            List<Executor> executors = computer.getExecutors();
-            int total = executors.size();
-            int busy  = (int) executors.stream().filter(e -> !e.isIdle()).count();
+            int total = computer.getNumExecutors();
+            int busy  = computer.countBusy();
 
             double freeCpu = getFreeCpuPercent(computer);
             long   freeMem = getFreeMemoryMb(computer);
@@ -384,6 +348,18 @@ public class SchedulingEngine {
             if (requiredLabel.matches(node)) result.add(info);
         }
         return result;
+    }
+
+    private Computer resolveComputer(String nodeName, Jenkins jenkins) {
+        Node node = "built-in".equals(nodeName) ? jenkins : jenkins.getNode(nodeName);
+        return node != null ? node.toComputer() : null;
+    }
+
+    private void setComputerExecutors(Computer computer, int numExecutors) throws Exception {
+        java.lang.reflect.Method setNumExecutors =
+            Computer.class.getDeclaredMethod("setNumExecutors", int.class);
+        setNumExecutors.setAccessible(true);
+        setNumExecutors.invoke(computer, numExecutors);
     }
 
     /**
